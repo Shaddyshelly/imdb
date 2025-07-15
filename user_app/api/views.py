@@ -13,8 +13,20 @@ from rest_framework import status
 def logout_view(request):
     
     if request.method == 'POST':
-        request.user.auth_token.delete()
-        return Response(status= status.HTTP_200_OK)
+        # request.user.auth_token.delete()
+        # return Response(status= status.HTTP_200_OK)
+        
+        if request.user.is_authenticated:
+            try:
+                request.user.auth_token.delete()
+                return Response({"detail": "Successfully logged out."}, status=status.HTTP_200_OK)
+            except Exception as e:
+                # Optional: Log the error for debugging purposes
+                print(f"Error during token deletion for user {request.user}: {e}")
+                # You might return a different status if token deletion specifically failed
+                return Response({"detail": "Logout attempted, but token could not be deleted."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        else:
+             return Response({"detail": "No active session to log out from or already logged out."}, status=status.HTTP_200_OK)
 
 
 
