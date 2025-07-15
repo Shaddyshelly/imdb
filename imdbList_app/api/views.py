@@ -5,16 +5,18 @@ from django.shortcuts import get_object_or_404
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from imdbList_app.api.permissions import IsAdminOrReadOnly, IsReviewUserOrReadOnly
-
-
+from imdbList_app.api.throttling import ReviewCreateThrottle, ReviewListThrottle
+from rest_framework.throttling import UserRateThrottle, AnonRateThrottle
 from imdbList_app.models import (WatchList, StreamPlatform, Review)
 from imdbList_app.api.serializers import (WatchListSerializer, StreamPlatformSerializer,
                                           ReviewSerializer)
+
 
 # Concrete Class Based Views
 class ReviewCreate(generics.CreateAPIView):
     serializer_class = ReviewSerializer
     permission_classes = [IsAuthenticated]
+    throttle_classes = [ReviewCreateThrottle]
     def get_queryset(self):
         return Review.objects.all()
     
@@ -39,15 +41,18 @@ class ReviewCreate(generics.CreateAPIView):
         serializer.save(watchlist = watchlist, review_user = review_user)
     
 class ReviewList(generics.ListAPIView):
+    throttle_classes = [UserRateThrottle,  AnonRateThrottle]
+    throttle_classes = [ReviewListThrottle]
     
     serializer_class = ReviewSerializer
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
     def get_queryset(self):
         pk = self.kwargs['pk']
         return Review.objects.filter(watchlist=pk)
 
 
 class ReviewDetail(generics.RetrieveUpdateDestroyAPIView):
+    throttle_classes = [UserRateThrottle, AnonRateThrottle]
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
     permission_classes = [IsReviewUserOrReadOnly]
