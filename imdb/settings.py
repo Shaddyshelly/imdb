@@ -140,7 +140,7 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
-    'ROTATE_REFFRESH_TOKENS' : True,
+    # 'ROTATE_REFFRESH_TOKENS' : True,
 }
 
 
