@@ -80,6 +80,7 @@ class ReviewTestCase(APITestCase):
         self.stream = models.StreamPlatform.objects.create(name = "Netflix", about = "#1 Platform", website = "https://www.netflix.com")
         
         self.watchlist = models.WatchList.objects.create(platform = self.stream, title = "Example Movie", storyline = "Example Movie", active = True)
+        
         self.watchlist2 = models.WatchList.objects.create(platform = self.stream, title = "Example Movie", storyline = "Example Movie", active = True)
         
         self.review = models.Review.objects.create(review_user=self.user, rating = 5, description = "Great Movie", watchlist=self.watchlist2, active=True)
@@ -96,7 +97,6 @@ class ReviewTestCase(APITestCase):
         response = self.client.post(reverse('review-create', args=(self.watchlist.id,)), data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(models.Review.objects.count(), 2)
-        # self.assertEqual(models.Review.objects.get().rating, 5)
         
         response = self.client.post(reverse('review-create', args=(self.watchlist.id,)), data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST) # adding review for second time
@@ -127,30 +127,18 @@ class ReviewTestCase(APITestCase):
         response = self.client.put(reverse('review-detail', args=(self.review.id,)), data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         
-        
-        
-        
-        
-        
-        
-        
-        
+    def test_review_list(self):
+        response = self.client.get(reverse('review-list', args=(self.watchlist.id,)))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
     
-        
+    def test_review_ind(self):
+        response = self.client.get(reverse('review-detail', args=(self.review.id,)))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        
-        
-    
-        
-        
+    def test_review_ind_delete(self):
+        response = self.client.delete(reverse('review-detail', args=(self.review.id,)))
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
-
-
-
-
-
-
-
-
-
-
+    def test_review_user(self):
+        response = self.client.get('/watch/reviews/?username' + self.user.username)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
