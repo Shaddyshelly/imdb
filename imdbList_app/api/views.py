@@ -1,8 +1,7 @@
 from warnings import filters
 from rest_framework.response import Response
 from rest_framework import status, mixins, generics, viewsets
-from rest_framework.views import APIView
-from django.shortcuts import get_object_or_404 
+from rest_framework.views import APIView 
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from imdbList_app.api.permissions import IsAdminOrReadOnly, IsReviewUserOrReadOnly
@@ -33,6 +32,7 @@ class ReviewCreate(generics.CreateAPIView):
     serializer_class = ReviewSerializer
     permission_classes = [IsAuthenticated]
     throttle_classes = [ReviewCreateThrottle]
+    
     def get_queryset(self):
         return Review.objects.all()
     
